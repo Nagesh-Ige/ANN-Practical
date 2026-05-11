@@ -1,0 +1,33 @@
+import numpy as np
+
+x1 = np.array([1, -1, 1])
+y1 = np.array([1, -1])
+
+x2 = np.array([-1, 1, -1])
+y2 = np.array([-1, 1])
+
+w1 = np.outer(x1, y1)
+w2 = np.outer(x2, y2)
+
+w = w1 + w2
+
+print("Weight Matrix:")
+print(w)
+
+input_x = np.array([1, -1, 1])
+
+y_out = np.dot(input_x, w)
+
+y_result = np.where(y_out >= 0, 1, -1)
+
+print("Associated Y Output:")
+print(y_result)
+
+input_y = np.array([1, -1])
+
+x_out = np.dot(w, input_y)
+
+x_result = np.where(x_out >= 0, 1, -1)
+
+print("Associated X Output:")
+print(x_result)
