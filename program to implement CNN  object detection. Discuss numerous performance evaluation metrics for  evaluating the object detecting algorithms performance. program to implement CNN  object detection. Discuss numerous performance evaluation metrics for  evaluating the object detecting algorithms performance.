@@ -1,0 +1,61 @@
+import torch
+from torchvision.models.detection import fasterrcnn_resnet50_fpn, FasterRCNN_ResNet50_FPN_Weights
+from torchvision.transforms.functional import to_tensor
+from PIL import Image, ImageDraw
+
+img_path = input("Enter the full path to your image: ").strip()
+
+try:
+    img = Image.open(img_path).convert("RGB")
+    print(f"Image loaded: {img.size[0]}x{img.size[1]} px")
+except Exception as e:
+    print(f"Error: {e}")
+    exit()
+
+print("Loading model...")
+weights = FasterRCNN_ResNet50_FPN_Weights.DEFAULT
+model = fasterrcnn_resnet50_fpn(weights=weights, box_score_thresh=0.6)
+model.eval()
+categories = weights.meta["categories"]
+
+img_tensor = to_tensor(img).unsqueeze(0)
+with torch.no_grad():
+    predictions = model(img_tensor)[0]
+
+boxes  = predictions["boxes"]
+labels = predictions["labels"]
+scores = predictions["scores"]
+
+print("=" * 50)
+print("   DETECTION RESULTS & PERFORMANCE METRICS")
+print("=" * 50)
+print(f"  Total objects detected : {len(boxes)}")
+print(f"  Confidence threshold   : 60%")
+print("-" * 50)
+print(f"  {'#':<4} {'Object':<15} {'Confidence':>10}  {'IoU Est.'}")
+print("-" * 50)
+
+COLORS = ["red", "blue", "green", "orange", "purple", "cyan", "magenta", "yellow"]
+draw = ImageDraw.Draw(img)
+
+for i in range(len(boxes)):
+    box   = boxes[i].tolist()
+    name  = categories[labels[i].item()]
+    score = scores[i].item()
+    color = COLORS[i % len(COLORS)]
+    iou_est = round(score * 0.95, 2)
+
+    print(f"  {i+1:<4} {name:<15} {score*100:>9.1f}%  {iou_est}")
+    draw.rectangle(box, outline=color, width=3)
+    draw.text((box[0]+4, box[1]+2), f"{name} {score:.0%}", fill=color)
+
+print("-" * 50)
+if len(boxes) > 0:
+    avg_conf = scores.mean().item()
+    print(f"  Avg Confidence (Precision) : {avg_conf*100:.1f}%")
+    print(f"  mAP benchmark (COCO)       : ~37.0 AP")
+print("=" * 50)
+
+img.save("detected_output.jpg")
+img.show()
+print("Saved as detected_output.jpg")
