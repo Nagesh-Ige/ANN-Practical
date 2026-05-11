@@ -1,0 +1,54 @@
+# Load MNIST data
+from tensorflow.keras.datasets import mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
+print("Data loaded:", x_train.shape[0], "train,", x_test.shape[0], "test")
+
+# --- 1. PyTorch ---
+print("\n--- PyTorch ---")
+import torch, torch.nn as nn
+model1 = nn.Sequential(nn.Flatten(), nn.Linear(784,128), nn.ReLU(), nn.Linear(128,10))
+opt1 = torch.optim.Adam(model1.parameters())
+tx = torch.tensor(x_train, dtype=torch.float32)
+ty = torch.tensor(y_train, dtype=torch.long)
+for e in range(3):
+    opt1.zero_grad()
+    nn.CrossEntropyLoss()(model1(tx), ty).backward()
+    opt1.step()
+    pred = model1(torch.tensor(x_test, dtype=torch.float32)).argmax(1).numpy()
+    print(f"  Epoch {e+1}: {(pred == y_test).mean()*100:.2f}%")
+
+# --- 2. Keras ---
+print("\n--- Keras ---")
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Flatten, Dense
+model2 = Sequential([Flatten(input_shape=(28,28)), Dense(128, activation='relu'), Dense(10, activation='softmax')])
+model2.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+model2.fit(x_train, y_train, epochs=3, verbose=1)
+print("  Test:", model2.evaluate(x_test, y_test, verbose=0)[1]*100, "%")
+
+# --- 3. TensorFlow ---
+print("\n--- TensorFlow ---")
+import tensorflow as tf
+model3 = tf.keras.Sequential([tf.keras.layers.Flatten(input_shape=(28,28)),
+                               tf.keras.layers.Dense(128, activation='relu'),
+                               tf.keras.layers.Dense(10)])
+loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+opt3 = tf.keras.optimizers.Adam()
+for e in range(3):
+    with tf.GradientTape() as tape:
+        loss = tf.reduce_mean(loss_fn(y_train, model3(x_train.astype('float32'))))
+    opt3.apply_gradients(zip(tape.gradient(loss, model3.trainable_variables), model3.trainable_variables))
+    pred = tf.argmax(model3(x_test.astype('float32')), axis=1).numpy()
+    print(f"  Epoch {e+1}: {(pred == y_test).mean()*100:.2f}%")
+
+# --- Show results ---
+import matplotlib.pyplot as plt
+fig, ax = plt.subplots(1, 5, figsize=(10, 2))
+for i in range(5):
+    ax[i].imshow(x_test[i], cmap='gray')
+    ax[i].set_title(f"{y_test[i]}")
+    ax[i].axis('off')
+plt.suptitle("Sample MNIST Digits")
+plt.show()
+print("Done!")
