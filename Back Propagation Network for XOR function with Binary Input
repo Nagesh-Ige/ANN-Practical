@@ -1,0 +1,63 @@
+import math
+import random
+
+x = [[0,0],[0,1],[1,0],[1,1]]
+y = [0,1,1,0]
+
+w1 = random.random()
+w2 = random.random()
+w3 = random.random()
+w4 = random.random()
+
+w5 = random.random()
+w6 = random.random()
+
+b1 = random.random()
+b2 = random.random()
+b3 = random.random()
+
+lr = 0.1
+
+def sigmoid(x):
+    return 1 / (1 + math.exp(-x))
+
+for epoch in range(5000):
+
+    for i in range(4):
+
+        h1 = sigmoid(x[i][0] * w1 + x[i][1] * w2 + b1)
+        h2 = sigmoid(x[i][0] * w3 + x[i][1] * w4 + b2)
+
+        output = sigmoid(h1 * w5 + h2 * w6 + b3)
+
+        error = y[i] - output
+
+        d_output = error * output * (1 - output)
+
+        d_h1 = h1 * (1 - h1) * d_output * w5
+        d_h2 = h2 * (1 - h2) * d_output * w6
+
+        w5 += lr * d_output * h1
+        w6 += lr * d_output * h2
+
+        b3 += lr * d_output
+
+        w1 += lr * d_h1 * x[i][0]
+        w2 += lr * d_h1 * x[i][1]
+
+        w3 += lr * d_h2 * x[i][0]
+        w4 += lr * d_h2 * x[i][1]
+
+        b1 += lr * d_h1
+        b2 += lr * d_h2
+
+print("XOR Output")
+
+for i in range(4):
+
+    h1 = sigmoid(x[i][0] * w1 + x[i][1] * w2 + b1)
+    h2 = sigmoid(x[i][0] * w3 + x[i][1] * w4 + b2)
+
+    output = sigmoid(h1 * w5 + h2 * w6 + b3)
+
+    print(x[i], "->", round(output))
