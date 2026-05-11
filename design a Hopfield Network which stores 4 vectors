@@ -1,0 +1,45 @@
+vectors = [
+    [1, -1, 1, -1],
+    [-1, 1, -1, 1],
+    [1, 1, -1, -1],
+    [-1, -1, 1, 1]
+]
+
+size = len(vectors[0])
+
+weights = []
+
+for i in range(size):
+    row = []
+    for j in range(size):
+        row.append(0)
+    weights.append(row)
+
+for v in vectors:
+    for i in range(size):
+        for j in range(size):
+            if i != j:
+                weights[i][j] += v[i] * v[j]
+
+print("Weight Matrix")
+
+for row in weights:
+    print(row)
+
+test = [1, -1, 1, -1]
+
+output = []
+
+for i in range(size):
+    total = 0
+
+    for j in range(size):
+        total += weights[i][j] * test[j]
+
+    if total >= 0:
+        output.append(1)
+    else:
+        output.append(-1)
+
+print("Stored Pattern")
+print(output)
