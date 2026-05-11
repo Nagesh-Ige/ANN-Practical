@@ -1,0 +1,37 @@
+import numpy as np
+
+x = np.array([
+    [1,1,1,1,1,1,0],
+    [0,1,1,0,0,0,0],
+    [1,1,0,1,1,0,1],
+    [1,1,1,1,0,0,1],
+    [0,1,1,0,0,1,1],
+    [1,0,1,1,0,1,1],
+    [1,0,1,1,1,1,1],
+    [1,1,1,0,0,0,0],
+    [1,1,1,1,1,1,1],
+    [1,1,1,1,0,1,1]
+])
+
+y = np.array([1,0,1,0,1,0,1,0,1,0])
+
+w = np.zeros(7)
+b = 0
+lr = 1
+
+for epoch in range(10):
+    for i in range(len(x)):
+        net = np.dot(x[i], w) + b
+        output = 1 if net >= 0 else 0
+        error = y[i] - output
+        w = w + lr * error * x[i]
+        b = b + lr * error
+
+print("Testing")
+
+for i in range(len(x)):
+    net = np.dot(x[i], w) + b
+    output = 1 if net >= 0 else 0
+    number = i
+    result = "Even" if output == 1 else "Odd"
+    print("Number:", number, "->", result)
