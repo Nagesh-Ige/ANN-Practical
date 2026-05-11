@@ -1,0 +1,58 @@
+import numpy as np
+
+numbers = {
+    0: [
+        1,1,1,
+        1,0,1,
+        1,0,1,
+        1,0,1,
+        1,1,1
+    ],
+
+    1: [
+        0,1,0,
+        1,1,0,
+        0,1,0,
+        0,1,0,
+        1,1,1
+    ],
+
+    2: [
+        1,1,1,
+        0,0,1,
+        1,1,1,
+        1,0,0,
+        1,1,1
+    ],
+
+    3: [
+        1,1,1,
+        0,0,1,
+        0,1,1,
+        0,0,1,
+        1,1,1
+    ]
+}
+
+x_train = np.array(list(numbers.values()))
+y_train = np.array([0, 1, 2, 3])
+
+test = np.array([
+    1,1,1,
+    0,0,1,
+    1,1,1,
+    1,0,0,
+    1,1,1
+])
+
+min_distance = float('inf')
+recognized_number = -1
+
+for i in range(len(x_train)):
+    distance = np.sum(np.abs(x_train[i] - test))
+
+    if distance < min_distance:
+        min_distance = distance
+        recognized_number = y_train[i]
+
+print("Recognized Number:", recognized_number)
